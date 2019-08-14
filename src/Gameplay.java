@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -27,6 +28,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     private HashSet<PipePair> pipePairs = new HashSet<>();
 
     private boolean inStartMenu;
+    private int characterSelected = 0;
+    private Bird.CharacterType[] characters = {Bird.CharacterType.NICOLAIW, Bird.CharacterType.MALTE, Bird.CharacterType.MADS, Bird.CharacterType.JEPPE, Bird.CharacterType.NEAL, Bird.CharacterType.NEAL};
     private boolean gameRunning;
     private int score;
 
@@ -39,15 +42,26 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private int personalBest;
 
+    private HashMap<Bird.CharacterType, BufferedImage> characterSprites;
+
     public Gameplay() {
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        timer.start();
 
         try {
             bg_top = ImageIO.read(getClass().getResourceAsStream("bg_top.png"));
             bg_mid = ImageIO.read(getClass().getResourceAsStream("bg_mid.png"));
             bg_bottom = ImageIO.read(getClass().getResourceAsStream("bg_bottom.png"));
+
+            characterSprites = new HashMap<>();
+            characterSprites.put(Bird.CharacterType.NICOLAIW, ImageIO.read(getClass().getResourceAsStream("nicolai1_2.png")));
+            //characterSprites.put(Bird.CharacterType.NICOLAIL, ImageIO.read(getClass().getResourceAsStream("")));
+            characterSprites.put(Bird.CharacterType.MALTE, ImageIO.read(getClass().getResourceAsStream("malte1.png")));
+            characterSprites.put(Bird.CharacterType.JEPPE, ImageIO.read(getClass().getResourceAsStream("jeppe1.png")));
+            characterSprites.put(Bird.CharacterType.NEAL, ImageIO.read(getClass().getResourceAsStream("neal1.png")));
+            characterSprites.put(Bird.CharacterType.MADS, ImageIO.read(getClass().getResourceAsStream("mads1.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,7 +76,6 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             e4.printStackTrace();
         }
 
-        //getClass().getResourceAsStream("././personalbest.txt")
         Scanner scanner = null;
         try {
             scanner = new Scanner(new File("personalbest.txt"));
@@ -72,6 +85,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         personalBest = scanner.nextInt();
         scanner.close();
 
+        inStartMenu = true;
         //start();
     }
 
@@ -85,60 +99,89 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
         g.drawImage(bg_top, 0, 0, null);
 
-        //bird
-        bird.draw(g);
+        if (!inStartMenu) {
+            //bird
+            bird.draw(g);
 
-        //pipes
-        for (PipePair pipePair : pipePairs) {
-            pipePair.draw(g);
+            //pipes
+            for (PipePair pipePair : pipePairs) {
+                pipePair.draw(g);
+            }
+
+            //score;
+            g.setColor(Color.white);
+            g.setFont(new Font("Retro Gaming", 0, 20));
+            g.drawString("SCORE: " + score, 5, 20);
+            g.drawString("BEST: " + personalBest, 5, 40);
         }
 
-        //score;
-        g.setColor(Color.white);
-        g.setFont(new Font("Retro Gaming", 0, 20));
-        g.drawString("SCORE: " + score, 5, 20);
-        g.drawString("BEST: " + personalBest, 5, 40);
+        if (inStartMenu) {
+            g.setColor(new Color(255, 255, 255, 127));
+            g.fillRect(100, 100, 700, 400);
+            g.setFont(new Font("Retro Gaming", 0, 30));
+            g.setColor(Color.black);
+            g.drawString("CHOOSE YOUR CHARACTER", 225, 200);
+            g.setFont(new Font("Retro Gaming", 0, 10));
+            g.drawString("ENTER: START", 400, 400);
+            g.drawString("SPACE: FLY", 407, 420);
+            g.drawString("ESC: MENU", 412, 440);
+
+            g.setColor(new Color(0, 0, 0, 127));
+
+            g.fillRect(175 + (characterSelected * 100), 273, 60, 60);
+
+            g.drawImage(characterSprites.get(Bird.CharacterType.NICOLAIW), 160, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.MALTE), 260, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.MADS), 360, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.JEPPE), 460, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.NEAL), 560, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.NEAL), 660, 250, null);
+        }
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        pipeCountdown--;
-        if (pipeCountdown == 0) {
-            pipePairs.add(new PipePair(screenWidth, screenHeigt, timer));
-            pipeCountdown = timeBetweenPipes;
-        }
 
-        HashSet<PipePair> newPipepairs = new HashSet<>(pipePairs);
-        for (PipePair pipePair : pipePairs) {
-            try {
-                if (bird.getBird_pos_x() > pipePair.getX() + pipePair.getWidth() && !pipePair.isPassed()) {
-                    score++;
-                    playSound("point.wav");
-                    pipePair.setPassed(true);
-                }
-                if (bird.getHitBox().intersects(pipePair.getHitbox1()) || bird.getHitBox().intersects(pipePair.getHitbox2())) {
-                    playSound("hit.wav");
-                    die();
-                }
-            } catch (Exception e1) {
-
+        if (gameRunning)  {
+            pipeCountdown--;
+            if (pipeCountdown == 0) {
+                pipePairs.add(new PipePair(screenWidth, screenHeigt, timer));
+                pipeCountdown = timeBetweenPipes;
             }
-            if (pipePair.getX() + pipePair.getWidth() < 0) newPipepairs.remove(pipePair);
-        }
-        pipePairs = newPipepairs;
 
-        bg_mid_x -= 0.2;
-        bg_bottom_x -= 0.6;
-        if (bg_mid_x < -bg_mid.getWidth()) bg_mid_x += bg_mid.getWidth();
-        if (bg_bottom_x < -bg_bottom.getWidth()) bg_bottom_x += bg_bottom.getWidth();
+            HashSet<PipePair> newPipepairs = new HashSet<>(pipePairs);
+            for (PipePair pipePair : pipePairs) {
+                try {
+                    if (bird.getBird_pos_x() > pipePair.getX() + pipePair.getWidth() && !pipePair.isPassed()) {
+                        score++;
+                        playSound("point.wav");
+                        pipePair.setPassed(true);
+                    }
+                    if (bird.getHitBox().intersects(pipePair.getHitbox1()) || bird.getHitBox().intersects(pipePair.getHitbox2())) {
+                        playSound("hit.wav");
+                        die();
+                    }
+                } catch (Exception e1) {
 
-        if (score > personalBest) {
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("personalbest.txt"), StandardCharsets.UTF_8))) {
-                writer.write(score + "");
-                personalBest = score;
-            } catch (Exception e2) {
-                e2.printStackTrace();
+                }
+                if (pipePair.getX() + pipePair.getWidth() < 0) newPipepairs.remove(pipePair);
+            }
+            pipePairs = newPipepairs;
+
+            bg_mid_x -= 0.2;
+            bg_bottom_x -= 0.6;
+            if (bg_mid_x < -bg_mid.getWidth()) bg_mid_x += bg_mid.getWidth();
+            if (bg_bottom_x < -bg_bottom.getWidth()) bg_bottom_x += bg_bottom.getWidth();
+
+            if (score > personalBest) {
+                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream("personalbest.txt"), StandardCharsets.UTF_8))) {
+                    writer.write(score + "");
+                    personalBest = score;
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
             }
         }
 
@@ -151,8 +194,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         gameRunning = false;
     }
 
-    private void start() {
-        bird = new Bird(screenHeigt, timer, Bird.CharacterType.MALTE);
+    private void exit() {
+        birdsounds.stop();
+        gameRunning = false;
+        inStartMenu = true;
+    }
+
+    private void start(Bird.CharacterType characterType) {
+        bird = new Bird(screenHeigt, timer, characterType);
         pipeCountdown = timeBetweenPipes;
         pipePairs.clear();
         score = 0;
@@ -168,18 +217,31 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && gameRunning) {
-            playSound("flap2.wav");
-            bird.flap();
-            bird.setFlapping(true);
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE && !gameRunning) {
-            start();
+        if (inStartMenu) {
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                if (characterSelected > 0) characterSelected--;
+            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                if (characterSelected < 5) characterSelected++;
+            } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                inStartMenu = false;
+                start(characters[characterSelected]);
+            }
+        } else {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE && gameRunning) {
+                playSound("flap2.wav");
+                bird.flap();
+                bird.setFlapping(true);
+            } else if (e.getKeyCode() == KeyEvent.VK_SPACE && !gameRunning || e.getKeyCode() == KeyEvent.VK_ENTER && !gameRunning ) {
+                start(characters[characterSelected ]);
+            } else if (gameRunning && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                exit();
+            }
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && gameRunning) {
             bird.setFlapping(false);
         }
     }
@@ -194,10 +256,5 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void startMenu(Graphics g) {
-        g.setColor(Color.black);
-        g.fillRect(100, 100, 300, 300);
     }
 }
