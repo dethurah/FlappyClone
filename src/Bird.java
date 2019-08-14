@@ -22,10 +22,12 @@ public class Bird implements ActionListener {
     private Rectangle hitBox;
     private boolean flapping = false;
 
+    private CharacterType characterType;
     BufferedImage sprite;
     BufferedImage sprite2;
 
-    public Bird(int screenheight, Timer timer) {
+    public Bird(int screenheight, Timer timer, CharacterType characterType) {
+        this.characterType = characterType;
         bird_pos_x = 150;
         bird_pos_y = 20;
         hitBox = new Rectangle((int)bird_pos_x, (int)bird_pos_y, size, size);
@@ -34,8 +36,30 @@ public class Bird implements ActionListener {
         timer.addActionListener(this);
 
         try {
-            sprite = ImageIO.read(getClass().getResourceAsStream("nicolai1-2.png"));
-            sprite2 = ImageIO.read(getClass().getResourceAsStream("nicolai2-2.png"));
+            switch (characterType) {
+                case NICOLAIW:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("nicolai1_2.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("nicolai2_2.png"));
+                    break;
+                case NICOLAIL:
+                    break;
+                case MALTE:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("malte1.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("malte2.png"));
+                    break;
+                case MADS:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("mads1.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("mads2.png"));
+                    break;
+                case JEPPE:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("jeppe1.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("jeppe2.png"));
+                    break;
+                case NEAL:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("neal1.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("neal2.png"));
+                    break;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,9 +86,9 @@ public class Bird implements ActionListener {
         //g.fillOval((int)bird_pos_x, (int)bird_pos_y, size, size);
 
         if (!flapping) {
-            g.drawImage(rotateImageByDegrees(sprite, velY*12), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
+            g.drawImage(rotateImageByDegrees(sprite, velY*12), (int)bird_pos_x - 50, (int)bird_pos_y - 50, null);
         } else {
-            g.drawImage(rotateImageByDegrees(sprite2, velY*12), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
+            g.drawImage(rotateImageByDegrees(sprite2, velY*12), (int)bird_pos_x - 50, (int)bird_pos_y - 50, null);
         }
 
     }
@@ -114,5 +138,14 @@ public class Bird implements ActionListener {
         g2d.dispose();
 
         return rotated;
+    }
+
+    public enum CharacterType {
+        NICOLAIW,
+        NICOLAIL,
+        MALTE,
+        MADS,
+        JEPPE,
+        NEAL
     }
 }

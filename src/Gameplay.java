@@ -26,6 +26,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     private int pipeCountdown;
     private HashSet<PipePair> pipePairs = new HashSet<>();
 
+    private boolean inStartMenu;
     private boolean gameRunning;
     private int score;
 
@@ -71,7 +72,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         personalBest = scanner.nextInt();
         scanner.close();
 
-        start();
+        //start();
     }
 
     public void paint(Graphics g) {
@@ -151,7 +152,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     }
 
     private void start() {
-        bird = new Bird(screenHeigt, timer);
+        bird = new Bird(screenHeigt, timer, Bird.CharacterType.MALTE);
         pipeCountdown = timeBetweenPipes;
         pipePairs.clear();
         score = 0;
@@ -193,5 +194,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void startMenu(Graphics g) {
+        g.setColor(Color.black);
+        g.fillRect(100, 100, 300, 300);
     }
 }
