@@ -9,10 +9,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Scanner;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
@@ -29,8 +29,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     private boolean gameRunning;
     private int score;
 
-    private BufferedImage bg;
+    private BufferedImage bg_top;
+    private BufferedImage bg_mid;
+    private BufferedImage bg_bottom;
+    private double bg_mid_x = 0;
+    private double bg_bottom_x = 0;
     private Clip birdsounds;
+
+    private int personalBest;
 
     public Gameplay() {
         addKeyListener(this);
@@ -38,7 +44,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         setFocusTraversalKeysEnabled(false);
 
         try {
-            bg = ImageIO.read(getClass().getResourceAsStream("bg-resized.png"));
+            bg_top = ImageIO.read(getClass().getResourceAsStream("bg_top.png"));
+            bg_mid = ImageIO.read(getClass().getResourceAsStream("bg_mid.png"));
+            bg_bottom = ImageIO.read(getClass().getResourceAsStream("bg_bottom.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,16 +61,22 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             e4.printStackTrace();
         }
 
+        Scanner scanner = new Scanner(getClass().getResourceAsStream("personalbest.txt"));
+        personalBest = scanner.nextInt();
+        scanner.close();
+
         start();
     }
 
     public void paint(Graphics g) {
-        //backround
-        g.setColor(Color.black);
-        g.fillRect(0, 0, screenWidth, screenHeigt);
-
         //img background
-        g.drawImage(bg, 0, 0, null);
+        g.drawImage(bg_mid, (int)bg_mid_x, 0, null);
+        g.drawImage(bg_mid, (int)bg_mid_x + bg_mid.getWidth(), 0, null);
+
+        g.drawImage(bg_bottom, (int)bg_bottom_x, 0, null);
+        g.drawImage(bg_bottom, (int)bg_bottom_x + bg_bottom.getWidth(), 0, null);
+
+        g.drawImage(bg_top, 0, 0, null);
 
         //bird
         bird.draw(g);
@@ -76,6 +90,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         g.setColor(Color.white);
         g.setFont(new Font("Retro Gaming", 0, 20));
         g.drawString("SCORE: " + score, 5, 20);
+        g.drawString("BEST: " + personalBest, 5, 40);
     }
 
     @Override
@@ -101,10 +116,25 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             } catch (Exception e1) {
 
             }
-
             if (pipePair.getX() + pipePair.getWidth() < 0) newPipepairs.remove(pipePair);
         }
         pipePairs = newPipepairs;
+
+        bg_mid_x -= 0.2;
+        bg_bottom_x -= 0.6;
+        if (bg_mid_x < -bg_mid.getWidth()) bg_mid_x += bg_mid.getWidth();
+        if (bg_bottom_x < -bg_bottom.getWidth()) bg_bottom_x += bg_bottom.getWidth();
+
+        if (score > personalBest) {
+            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("src/personalbest.txt"), StandardCharsets.UTF_8))) {
+                writer.write(score + "");
+                personalBest = score;
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+
         repaint();
     }
 
@@ -132,7 +162,6 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE && gameRunning) {
-            //flapping = true;
             playSound("flap2.wav");
             bird.flap();
             bird.setFlapping(true);
@@ -144,21 +173,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            //flapping = false;
             bird.setFlapping(false);
         }
     }
 
     private void playSound(String fileName) {
-        /*
-        try {
-            InputStream audio = getClass().getResourceAsStream("sounds/" + fileName);
-            InputStream audioBuffer = new BufferedInputStream(audio);
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioBuffer);
-            clip.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
         try {
             InputStream is = getClass().getResourceAsStream("/sounds/" + fileName);
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
