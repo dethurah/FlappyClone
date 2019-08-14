@@ -61,7 +61,13 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             e4.printStackTrace();
         }
 
-        Scanner scanner = new Scanner(getClass().getResourceAsStream("personalbest.txt"));
+        //getClass().getResourceAsStream("././personalbest.txt")
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File("personalbest.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         personalBest = scanner.nextInt();
         scanner.close();
 
@@ -127,7 +133,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
         if (score > personalBest) {
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("src/personalbest.txt"), StandardCharsets.UTF_8))) {
+                    new FileOutputStream("personalbest.txt"), StandardCharsets.UTF_8))) {
                 writer.write(score + "");
                 personalBest = score;
             } catch (Exception e2) {
