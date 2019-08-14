@@ -29,7 +29,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private boolean inStartMenu;
     private int characterSelected = 0;
-    private Bird.CharacterType[] characters = {Bird.CharacterType.NICOLAIW, Bird.CharacterType.MALTE, Bird.CharacterType.MADS, Bird.CharacterType.JEPPE, Bird.CharacterType.NEAL, Bird.CharacterType.NEAL};
+    private Bird.CharacterType[] characters = {Bird.CharacterType.NICOLAIW, Bird.CharacterType.MALTE, Bird.CharacterType.MADS, Bird.CharacterType.JEPPE, Bird.CharacterType.NEAL, Bird.CharacterType.NICOLAIL};
     private boolean gameRunning;
     private int score;
 
@@ -57,7 +57,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
             characterSprites = new HashMap<>();
             characterSprites.put(Bird.CharacterType.NICOLAIW, ImageIO.read(getClass().getResourceAsStream("nicolai1_2.png")));
-            //characterSprites.put(Bird.CharacterType.NICOLAIL, ImageIO.read(getClass().getResourceAsStream("")));
+            characterSprites.put(Bird.CharacterType.NICOLAIL, ImageIO.read(getClass().getResourceAsStream("nicolail1.png")));
             characterSprites.put(Bird.CharacterType.MALTE, ImageIO.read(getClass().getResourceAsStream("malte1.png")));
             characterSprites.put(Bird.CharacterType.JEPPE, ImageIO.read(getClass().getResourceAsStream("jeppe1.png")));
             characterSprites.put(Bird.CharacterType.NEAL, ImageIO.read(getClass().getResourceAsStream("neal1.png")));
@@ -135,7 +135,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             g.drawImage(characterSprites.get(Bird.CharacterType.MADS), 360, 250, null);
             g.drawImage(characterSprites.get(Bird.CharacterType.JEPPE), 460, 250, null);
             g.drawImage(characterSprites.get(Bird.CharacterType.NEAL), 560, 250, null);
-            g.drawImage(characterSprites.get(Bird.CharacterType.NEAL), 660, 250, null);
+            g.drawImage(characterSprites.get(Bird.CharacterType.NICOLAIL), 660, 250, null);
         }
 
     }

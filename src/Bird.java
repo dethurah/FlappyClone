@@ -42,6 +42,8 @@ public class Bird implements ActionListener {
                     sprite2 = ImageIO.read(getClass().getResourceAsStream("nicolai2_2.png"));
                     break;
                 case NICOLAIL:
+                    sprite = ImageIO.read(getClass().getResourceAsStream("nicolail1.png"));
+                    sprite2 = ImageIO.read(getClass().getResourceAsStream("nicolail2.png"));
                     break;
                 case MALTE:
                     sprite = ImageIO.read(getClass().getResourceAsStream("malte1.png"));
