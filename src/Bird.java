@@ -62,9 +62,9 @@ public class Bird implements ActionListener {
         //g.fillOval((int)bird_pos_x, (int)bird_pos_y, size, size);
 
         if (!flapping) {
-            g.drawImage(rotateImageByDegrees(sprite, 10), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
+            g.drawImage(rotateImageByDegrees(sprite, velY*12), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
         } else {
-            g.drawImage(rotateImageByDegrees(sprite2, -10), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
+            g.drawImage(rotateImageByDegrees(sprite2, velY*12), (int)bird_pos_x - 24, (int)bird_pos_y - 7, null);
         }
 
     }
