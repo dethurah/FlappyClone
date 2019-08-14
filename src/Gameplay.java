@@ -1,9 +1,17 @@
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
@@ -13,19 +21,38 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     private Timer timer = new Timer(5, this);
 
     private Bird bird;
-    private boolean flapping = false;
 
-    private int timeBetweenPipes = 500;
+    private int timeBetweenPipes = 300;
     private int pipeCountdown;
     private HashSet<PipePair> pipePairs = new HashSet<>();
 
     private boolean gameRunning;
     private int score;
 
+    private BufferedImage bg;
+    private Clip music;
+
     public Gameplay() {
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+
+        try {
+            bg = ImageIO.read(getClass().getResourceAsStream("bg-resized.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+/*
+        try {
+            InputStream audio = getClass().getResourceAsStream("sounds/birdssing.wav");
+            InputStream audioBuffer = new BufferedInputStream(audio);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioBuffer);
+            music = AudioSystem.getClip();
+            music.open(audioIn);
+        } catch (Exception e4) {
+
+        }*/
+
         start();
     }
 
@@ -33,6 +60,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         //backround
         g.setColor(Color.black);
         g.fillRect(0, 0, screenWidth, screenHeigt);
+
+        //img background
+        g.drawImage(bg, 0, 0, null);
 
         //bird
         bird.draw(g);
@@ -77,6 +107,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
 
     private void die() {
         timer.stop();
+        //music.stop();
         gameRunning = false;
     }
 
@@ -86,6 +117,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         pipePairs.clear();
         score = 0;
         gameRunning = true;
+        //music.loop(Clip.LOOP_CONTINUOUSLY);
         timer.start();
     }
 
@@ -97,8 +129,10 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE && gameRunning) {
-            flapping = true;
+            //flapping = true;
+            playSound("flap.wav");
             bird.flap();
+            bird.setFlapping(true);
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE && !gameRunning) {
             start();
         }
@@ -107,7 +141,21 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            flapping = false;
+            //flapping = false;
+            bird.setFlapping(false);
+        }
+    }
+
+    private void playSound(String fileName) {
+        try {
+            InputStream audio = getClass().getResourceAsStream("sounds/" + fileName);
+            InputStream audioBuffer = new BufferedInputStream(audio);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioBuffer);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
