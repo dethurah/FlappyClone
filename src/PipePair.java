@@ -1,8 +1,11 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class PipePair implements ActionListener {
 
@@ -19,6 +22,8 @@ public class PipePair implements ActionListener {
     private Rectangle upperRect;
     private Rectangle lowerRect;
 
+    private BufferedImage trunk;
+
     private boolean passed;
 
     public PipePair(int screenWidth, int screenHeight, Timer timer) {
@@ -28,6 +33,12 @@ public class PipePair implements ActionListener {
         x = screenWidth;
         gapY = (int) (Math.random() * (screenHeight - gapHeight));
         passed = false;
+
+        try {
+            trunk = ImageIO.read(getClass().getResourceAsStream("trunk.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -41,8 +52,10 @@ public class PipePair implements ActionListener {
         g.setColor(Color.gray);
 
         try {
-            g.fillRect(upperRect.x, upperRect.y, upperRect.width, upperRect.height);
-            g.fillRect(lowerRect.x, lowerRect.y, lowerRect.width, lowerRect.height);
+            //g.fillRect(upperRect.x, upperRect.y, upperRect.width, upperRect.height);
+            //g.fillRect(lowerRect.x, lowerRect.y, lowerRect.width, lowerRect.height);
+            g.drawImage(trunk, upperRect.x, upperRect.y, upperRect.width, upperRect.height, null);
+            g.drawImage(trunk, lowerRect.x, lowerRect.y, lowerRect.width, lowerRect.height, null);
         } catch (Exception e) {
 
         }
